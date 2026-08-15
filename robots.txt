@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://eriom60647-del.github.io/EnglishClass/sitemap.xml
