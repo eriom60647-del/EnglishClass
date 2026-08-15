@@ -3,198 +3,123 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Word Drop - English Vocabulary Game</title>
+<title>Loui's English Classroom</title>
 <style>
   :root{
-    --bg:#f6f3ea;
-    --panel:#ffffff;
-    --ink:#213547;
-    --accent:#f2a65a;
-    --accent2:#7bb6a7;
-    --danger:#d95d5d;
-    --soft:#e7ecef;
+    --bg:#f6f3ea; --panel:#fff; --ink:#213547; --accent:#7bb6a7;
+    --accent2:#f2a65a; --danger:#d95d5d;
   }
   *{box-sizing:border-box}
   body{
     margin:0;
     font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-    background:linear-gradient(180deg,#f9f7f0,#edf4f2);
     color:var(--ink);
+    background:linear-gradient(180deg,#f9f7f0,#edf4f2);
     min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    padding:20px;
   }
+  nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(255,255,255,.92);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid #e9eeee;
+  }
+  .nav-inner{
+    max-width:1100px; margin:auto; padding:14px 22px;
+    display:flex; justify-content:space-between; align-items:center; gap:16px;
+  }
+  .brand{font-weight:900;font-size:20px}
+  .nav-links{display:flex;gap:10px;flex-wrap:wrap}
+  .nav-links a{
+    text-decoration:none;color:var(--ink);font-weight:800;
+    padding:9px 13px;border-radius:999px;background:#f3f6f5;
+  }
+  .nav-links a:hover{background:#e7efec}
+  .wrap{max-width:1100px;margin:26px auto;padding:0 20px}
+  .hero{
+    background:white;border-radius:26px;padding:28px;
+    box-shadow:0 18px 55px rgba(45,70,80,.10);
+    margin-bottom:20px;
+  }
+  .hero h1{margin:0 0 8px;font-size:34px}
+  .hero p{margin:0;color:#667985;line-height:1.6}
   .app{
-    width:min(980px,100%);
-    display:grid;
-    grid-template-columns:1fr 300px;
-    gap:18px;
+    display:grid;grid-template-columns:1fr 300px;gap:18px;
   }
   .game-card,.side-card{
-    background:rgba(255,255,255,.94);
-    border-radius:24px;
-    box-shadow:0 18px 55px rgba(45,70,80,.12);
-    overflow:hidden;
+    background:rgba(255,255,255,.96);border-radius:24px;
+    box-shadow:0 18px 55px rgba(45,70,80,.12);overflow:hidden;
   }
   .hud{
-    display:flex;
-    gap:14px;
-    align-items:center;
-    justify-content:space-between;
-    padding:18px 22px;
-    border-bottom:1px solid #eef1f2;
-    font-weight:700;
+    display:flex;gap:14px;align-items:center;justify-content:space-between;
+    padding:18px 22px;border-bottom:1px solid #eef1f2;font-weight:700;
   }
-  .badge{
-    background:#f5f7f8;
-    padding:9px 14px;
-    border-radius:999px;
-  }
+  .badge{background:#f5f7f8;padding:9px 14px;border-radius:999px}
   #gameArea{
-    position:relative;
-    height:560px;
-    overflow:hidden;
+    position:relative;height:560px;overflow:hidden;
     background:
       radial-gradient(circle at 20% 20%,rgba(123,182,167,.12),transparent 30%),
       radial-gradient(circle at 80% 15%,rgba(242,166,90,.12),transparent 28%),
       #fbfcfc;
   }
   .danger-line{
-    position:absolute;
-    left:0; right:0;
-    bottom:86px;
+    position:absolute;left:0;right:0;bottom:86px;
     border-top:3px dashed rgba(217,93,93,.55);
-    pointer-events:none;
   }
   .danger-line span{
-    position:absolute;
-    right:14px;
-    top:8px;
-    font-size:12px;
-    color:var(--danger);
-    font-weight:700;
+    position:absolute;right:14px;top:8px;font-size:12px;color:var(--danger);font-weight:700;
   }
   .falling{
-    position:absolute;
-    min-width:150px;
-    text-align:center;
-    background:white;
-    border:2px solid #dfe7e7;
-    padding:13px 18px;
-    border-radius:16px;
-    font-size:28px;
-    font-weight:800;
-    letter-spacing:4px;
+    position:absolute;min-width:150px;text-align:center;background:white;
+    border:2px solid #dfe7e7;padding:13px 18px;border-radius:16px;
+    font-size:28px;font-weight:800;letter-spacing:4px;
     box-shadow:0 8px 20px rgba(40,60,70,.10);
-    transition:transform .12s ease, opacity .18s ease;
+    transition:transform .12s ease,opacity .18s ease;
   }
-  .falling.correct{
-    transform:scale(1.2);
-    opacity:0;
-  }
+  .falling.correct{transform:scale(1.2);opacity:0}
   .input-wrap{
-    position:absolute;
-    left:18px;
-    right:18px;
-    bottom:16px;
-    height:56px;
-    display:flex;
-    gap:10px;
+    position:absolute;left:18px;right:18px;bottom:16px;height:56px;
+    display:flex;gap:10px;
   }
   #answer{
-    flex:1;
-    border:2px solid #d7e0e3;
-    border-radius:14px;
-    font-size:22px;
-    padding:0 16px;
-    outline:none;
+    flex:1;border:2px solid #d7e0e3;border-radius:14px;font-size:22px;
+    padding:0 16px;outline:none;
   }
-  #answer:focus{border-color:var(--accent2)}
+  #answer:focus{border-color:var(--accent)}
   button{
-    border:none;
-    border-radius:14px;
-    padding:0 18px;
-    font-weight:800;
-    cursor:pointer;
-    background:var(--accent2);
-    color:white;
-    font-size:16px;
+    border:none;border-radius:14px;padding:0 18px;font-weight:800;
+    cursor:pointer;background:var(--accent);color:white;font-size:16px;
   }
-  button.secondary{
-    background:#e9eeee;
-    color:var(--ink);
-  }
+  button.secondary{background:#e9eeee;color:var(--ink)}
   .side-card{padding:22px}
-  h1{font-size:27px;margin:0 0 8px}
-  .subtitle{color:#667985;margin:0 0 22px;line-height:1.5}
+  .side-card h2{margin-top:0}
   textarea{
-    width:100%;
-    min-height:170px;
-    resize:vertical;
-    border:1px solid #dce5e7;
-    border-radius:14px;
-    padding:12px;
-    font-size:15px;
-    line-height:1.5;
+    width:100%;min-height:170px;resize:vertical;border:1px solid #dce5e7;
+    border-radius:14px;padding:12px;font-size:15px;line-height:1.5;
   }
-  label{
-    display:block;
-    margin:16px 0 7px;
-    font-weight:800;
-    font-size:14px;
-  }
+  label{display:block;margin:16px 0 7px;font-weight:800;font-size:14px}
   select{
-    width:100%;
-    border:1px solid #dce5e7;
-    border-radius:12px;
-    padding:11px;
-    background:white;
+    width:100%;border:1px solid #dce5e7;border-radius:12px;padding:11px;background:white;
   }
   .full{width:100%;height:46px;margin-top:14px}
   .tip{
-    margin-top:18px;
-    padding:14px;
-    background:#f6f8f7;
-    border-radius:14px;
-    font-size:13px;
-    line-height:1.6;
-    color:#61717a;
+    margin-top:18px;padding:14px;background:#f6f8f7;border-radius:14px;
+    font-size:13px;line-height:1.6;color:#61717a;
   }
   .overlay{
-    position:absolute;
-    inset:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background:rgba(249,251,251,.90);
-    z-index:20;
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    background:rgba(249,251,251,.90);z-index:20;
   }
   .overlay.hidden{display:none}
   .modal{
-    width:min(420px,88%);
-    background:white;
-    border-radius:22px;
-    padding:28px;
-    box-shadow:0 20px 55px rgba(36,60,67,.18);
-    text-align:center;
+    width:min(420px,88%);background:white;border-radius:22px;padding:28px;
+    box-shadow:0 20px 55px rgba(36,60,67,.18);text-align:center;
   }
   .modal h2{margin-top:0;font-size:32px}
   .stats{
-    text-align:left;
-    background:#f7f9f8;
-    padding:14px 16px;
-    border-radius:14px;
-    line-height:1.8;
-    margin:16px 0;
+    text-align:left;background:#f7f9f8;padding:14px 16px;border-radius:14px;
+    line-height:1.8;margin:16px 0;
   }
-  .review-list{
-    text-align:left;
-    max-height:110px;
-    overflow:auto;
-    font-weight:700;
-  }
+  .review-list{text-align:left;max-height:110px;overflow:auto;font-weight:700}
   @media(max-width:800px){
     .app{grid-template-columns:1fr}
     .side-card{order:-1}
@@ -203,51 +128,62 @@
 </style>
 </head>
 <body>
-<div class="app">
-  <section class="game-card">
-    <div class="hud">
-      <div class="badge">Score: <span id="score">0</span></div>
-      <div class="badge">Combo: ×<span id="combo">1</span></div>
-      <div class="badge">Lives: <span id="lives">❤️❤️❤️</span></div>
+<nav>
+  <div class="nav-inner">
+    <div class="brand">Loui's English Classroom</div>
+    <div class="nav-links">
+      <a href="index.html">🎮 Word Drop</a>
+      <a href="resources.html">📚 Learning Resources</a>
     </div>
+  </div>
+</nav>
 
-    <div id="gameArea">
-      <div class="danger-line"><span>Don't let the word fall!</span></div>
-
-      <div class="input-wrap">
-        <input id="answer" type="text" autocomplete="off" placeholder="Type the word here..." disabled />
-        <button id="submitBtn">Check</button>
-      </div>
-
-      <div id="startOverlay" class="overlay">
-        <div class="modal">
-          <h2>Word Drop</h2>
-          <p>Guess the falling word before it reaches the bottom.</p>
-          <button id="startBtn" style="height:48px;width:100%">Start Game</button>
-        </div>
-      </div>
-
-      <div id="gameOverOverlay" class="overlay hidden">
-        <div class="modal">
-          <h2>Game Over</h2>
-          <div class="stats">
-            Score: <strong id="finalScore">0</strong><br>
-            Accuracy: <strong id="accuracy">0%</strong><br>
-            Mastered: <strong id="mastered">0</strong>
-          </div>
-          <div class="review-list" id="reviewList"></div>
-          <button id="restartBtn" style="height:48px;width:100%;margin-top:16px">Practice Again</button>
-        </div>
-      </div>
-    </div>
+<div class="wrap">
+  <section class="hero">
+    <h1>Word Drop</h1>
+    <p>Practice class vocabulary by typing the falling word before it reaches the bottom.</p>
   </section>
 
-  <aside class="side-card">
-    <h1>Teacher Setup</h1>
-    <p class="subtitle">Enter class vocabulary below. One word per line.</p>
+  <div class="app">
+    <section class="game-card">
+      <div class="hud">
+        <div class="badge">Score: <span id="score">0</span></div>
+        <div class="badge">Combo: ×<span id="combo">1</span></div>
+        <div class="badge">Lives: <span id="lives">❤️❤️❤️</span></div>
+      </div>
+      <div id="gameArea">
+        <div class="danger-line"><span>Don't let the word fall!</span></div>
+        <div class="input-wrap">
+          <input id="answer" type="text" autocomplete="off" placeholder="Type the word here..." disabled />
+          <button id="submitBtn">Check</button>
+        </div>
+        <div id="startOverlay" class="overlay">
+          <div class="modal">
+            <h2>Word Drop</h2>
+            <p>Guess the falling word before it reaches the bottom.</p>
+            <button id="startBtn" style="height:48px;width:100%">Start Game</button>
+          </div>
+        </div>
+        <div id="gameOverOverlay" class="overlay hidden">
+          <div class="modal">
+            <h2>Game Over</h2>
+            <div class="stats">
+              Score: <strong id="finalScore">0</strong><br>
+              Accuracy: <strong id="accuracy">0%</strong><br>
+              Mastered: <strong id="mastered">0</strong>
+            </div>
+            <div class="review-list" id="reviewList"></div>
+            <button id="restartBtn" style="height:48px;width:100%;margin-top:16px">Practice Again</button>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    <label for="words">Vocabulary</label>
-    <textarea id="words">monster
+    <aside class="side-card">
+      <h2>Teacher Setup</h2>
+      <p style="color:#667985;line-height:1.5">Enter class vocabulary below. One word per line.</p>
+      <label for="words">Vocabulary</label>
+      <textarea id="words">monster
 afraid
 village
 noise
@@ -257,236 +193,70 @@ firecracker
 celebrate
 tradition
 festival</textarea>
-
-    <label for="difficulty">Difficulty</label>
-    <select id="difficulty">
-      <option value="easy">Easy - show most letters</option>
-      <option value="medium" selected>Medium - show some letters</option>
-      <option value="hard">Hard - show first letter only</option>
-    </select>
-
-    <label for="speed">Falling Speed</label>
-    <select id="speed">
-      <option value="slow">Slow</option>
-      <option value="normal" selected>Normal</option>
-      <option value="fast">Fast</option>
-    </select>
-
-    <button class="full secondary" id="resetWordsBtn">Reset Sample Words</button>
-
-    <div class="tip">
-      <strong>How to play:</strong><br>
-      Type the full word and press <strong>Enter</strong> or click <strong>Check</strong>.
-      Correct answers disappear and increase your score. Missed words cost one life.
-    </div>
-  </aside>
+      <label for="difficulty">Difficulty</label>
+      <select id="difficulty">
+        <option value="easy">Easy - show most letters</option>
+        <option value="medium" selected>Medium - show some letters</option>
+        <option value="hard">Hard - show first letter only</option>
+      </select>
+      <label for="speed">Falling Speed</label>
+      <select id="speed">
+        <option value="slow">Slow</option>
+        <option value="normal" selected>Normal</option>
+        <option value="fast">Fast</option>
+      </select>
+      <button class="full secondary" id="resetWordsBtn">Reset Sample Words</button>
+      <div class="tip">
+        <strong>How to play:</strong><br>
+        Type the full word and press <strong>Enter</strong> or click <strong>Check</strong>.
+      </div>
+    </aside>
+  </div>
 </div>
 
 <script>
-const sampleWords = [
-  "monster","afraid","village","noise","lantern",
-  "dragon","firecracker","celebrate","tradition","festival"
-];
-
-const gameArea = document.getElementById("gameArea");
-const answerInput = document.getElementById("answer");
-const scoreEl = document.getElementById("score");
-const comboEl = document.getElementById("combo");
-const livesEl = document.getElementById("lives");
-const startOverlay = document.getElementById("startOverlay");
-const gameOverOverlay = document.getElementById("gameOverOverlay");
-const finalScoreEl = document.getElementById("finalScore");
-const accuracyEl = document.getElementById("accuracy");
-const masteredEl = document.getElementById("mastered");
-const reviewListEl = document.getElementById("reviewList");
-
-let words = [];
-let activeWord = null;
-let activeEl = null;
-let y = 0;
-let animationId = null;
-let lastTime = null;
-let score = 0;
-let lives = 3;
-let combo = 1;
-let attempts = 0;
-let correctCount = 0;
-let missedWords = [];
-let playing = false;
-
-function readWords() {
-  const raw = document.getElementById("words").value
-    .split("\n")
-    .map(w => w.trim().toLowerCase())
-    .filter(Boolean);
-  return raw.length ? raw : [...sampleWords];
+const sampleWords=["monster","afraid","village","noise","lantern","dragon","firecracker","celebrate","tradition","festival"];
+const gameArea=document.getElementById("gameArea"),answerInput=document.getElementById("answer"),
+scoreEl=document.getElementById("score"),comboEl=document.getElementById("combo"),livesEl=document.getElementById("lives"),
+startOverlay=document.getElementById("startOverlay"),gameOverOverlay=document.getElementById("gameOverOverlay"),
+finalScoreEl=document.getElementById("finalScore"),accuracyEl=document.getElementById("accuracy"),
+masteredEl=document.getElementById("mastered"),reviewListEl=document.getElementById("reviewList");
+let words=[],activeWord=null,activeEl=null,y=0,animationId=null,lastTime=null,score=0,lives=3,combo=1,attempts=0,correctCount=0,missedWords=[],playing=false;
+function readWords(){const raw=document.getElementById("words").value.split("\n").map(w=>w.trim().toLowerCase()).filter(Boolean);return raw.length?raw:[...sampleWords]}
+function maskWord(word){
+ const d=document.getElementById("difficulty").value,letters=word.split("");
+ if(word.length<=2)return word[0]+"_";
+ if(d==="easy")return letters.map((c,i)=>i%3===1?"_":c).join(" ");
+ if(d==="hard")return letters.map((c,i)=>i===0?c:"_").join(" ");
+ return letters.map((c,i)=>{if(i===0||i===letters.length-1)return c;return i%2===0?c:"_"}).join(" ");
 }
-
-function maskWord(word) {
-  const difficulty = document.getElementById("difficulty").value;
-  const letters = word.split("");
-
-  if (word.length <= 2) return word[0] + "_";
-
-  if (difficulty === "easy") {
-    return letters.map((c, i) => i % 3 === 1 ? "_" : c).join(" ");
-  }
-  if (difficulty === "hard") {
-    return letters.map((c, i) => i === 0 ? c : "_").join(" ");
-  }
-
-  return letters.map((c, i) => {
-    if (i === 0 || i === letters.length - 1) return c;
-    return i % 2 === 0 ? c : "_";
-  }).join(" ");
+function getSpeed(){const s=document.getElementById("speed").value;return s==="slow"?28:s==="fast"?62:44}
+function spawnWord(){
+ if(!playing)return;if(activeEl)activeEl.remove();
+ activeWord=words[Math.floor(Math.random()*words.length)];
+ activeEl=document.createElement("div");activeEl.className="falling";activeEl.textContent=maskWord(activeWord);gameArea.appendChild(activeEl);
+ const maxX=Math.max(20,gameArea.clientWidth-220);activeEl.style.left=(20+Math.random()*maxX)+"px";
+ y=12;activeEl.style.top=y+"px";lastTime=null;animationId=requestAnimationFrame(tick)
 }
-
-function getSpeed() {
-  const speed = document.getElementById("speed").value;
-  if (speed === "slow") return 28;
-  if (speed === "fast") return 62;
-  return 44;
+function tick(timestamp){
+ if(!playing||!activeEl)return;if(!lastTime)lastTime=timestamp;
+ const dt=(timestamp-lastTime)/1000;lastTime=timestamp;y+=getSpeed()*dt;activeEl.style.top=y+"px";
+ const dangerY=gameArea.clientHeight-160;if(y>=dangerY){missWord();return}animationId=requestAnimationFrame(tick)
 }
-
-function spawnWord() {
-  if (!playing) return;
-
-  if (activeEl) activeEl.remove();
-
-  activeWord = words[Math.floor(Math.random() * words.length)];
-  activeEl = document.createElement("div");
-  activeEl.className = "falling";
-  activeEl.textContent = maskWord(activeWord);
-  gameArea.appendChild(activeEl);
-
-  const maxX = Math.max(20, gameArea.clientWidth - 220);
-  const x = 20 + Math.random() * maxX;
-  activeEl.style.left = x + "px";
-
-  y = 12;
-  activeEl.style.top = y + "px";
-  lastTime = null;
-  animationId = requestAnimationFrame(tick);
+function checkAnswer(){
+ if(!playing||!activeWord)return;const guess=answerInput.value.trim().toLowerCase();if(!guess)return;attempts++;
+ if(guess===activeWord){correctCount++;score+=100*combo;combo=Math.min(combo+1,9);activeEl.classList.add("correct");updateHud();answerInput.value="";cancelAnimationFrame(animationId);setTimeout(()=>{if(activeEl)activeEl.remove();activeEl=null;spawnWord()},160)}
+ else{combo=1;updateHud();answerInput.select()}
 }
-
-function tick(timestamp) {
-  if (!playing || !activeEl) return;
-  if (!lastTime) lastTime = timestamp;
-  const dt = (timestamp - lastTime) / 1000;
-  lastTime = timestamp;
-
-  y += getSpeed() * dt;
-  activeEl.style.top = y + "px";
-
-  const dangerY = gameArea.clientHeight - 160;
-  if (y >= dangerY) {
-    missWord();
-    return;
-  }
-  animationId = requestAnimationFrame(tick);
-}
-
-function checkAnswer() {
-  if (!playing || !activeWord) return;
-  const guess = answerInput.value.trim().toLowerCase();
-  if (!guess) return;
-
-  attempts++;
-
-  if (guess === activeWord) {
-    correctCount++;
-    score += 100 * combo;
-    combo = Math.min(combo + 1, 9);
-    activeEl.classList.add("correct");
-    updateHud();
-    answerInput.value = "";
-    cancelAnimationFrame(animationId);
-
-    setTimeout(() => {
-      if (activeEl) activeEl.remove();
-      activeEl = null;
-      spawnWord();
-    }, 160);
-  } else {
-    combo = 1;
-    updateHud();
-    answerInput.select();
-  }
-}
-
-function missWord() {
-  cancelAnimationFrame(animationId);
-  missedWords.push(activeWord);
-  lives--;
-  combo = 1;
-  attempts++;
-  updateHud();
-
-  if (activeEl) activeEl.remove();
-  activeEl = null;
-  answerInput.value = "";
-
-  if (lives <= 0) {
-    endGame();
-  } else {
-    spawnWord();
-  }
-}
-
-function updateHud() {
-  scoreEl.textContent = score;
-  comboEl.textContent = combo;
-  livesEl.textContent = "❤️".repeat(lives) + "🖤".repeat(3-lives);
-}
-
-function startGame() {
-  words = readWords();
-  score = 0;
-  lives = 3;
-  combo = 1;
-  attempts = 0;
-  correctCount = 0;
-  missedWords = [];
-  playing = true;
-  updateHud();
-
-  startOverlay.classList.add("hidden");
-  gameOverOverlay.classList.add("hidden");
-  answerInput.disabled = false;
-  answerInput.value = "";
-  answerInput.focus();
-  spawnWord();
-}
-
-function endGame() {
-  playing = false;
-  cancelAnimationFrame(animationId);
-  answerInput.disabled = true;
-
-  const accuracy = attempts ? Math.round(correctCount / attempts * 100) : 0;
-  finalScoreEl.textContent = score;
-  accuracyEl.textContent = accuracy + "%";
-  masteredEl.textContent = correctCount;
-
-  const uniqueMissed = [...new Set(missedWords)];
-  reviewListEl.innerHTML = uniqueMissed.length
-    ? "<strong>Words to review:</strong><br>" + uniqueMissed.join(" · ")
-    : "<strong>Great job!</strong> No missed words.";
-
-  gameOverOverlay.classList.remove("hidden");
-}
-
-document.getElementById("startBtn").addEventListener("click", startGame);
-document.getElementById("restartBtn").addEventListener("click", startGame);
-document.getElementById("submitBtn").addEventListener("click", checkAnswer);
-
-answerInput.addEventListener("keydown", e => {
-  if (e.key === "Enter") checkAnswer();
-});
-
-document.getElementById("resetWordsBtn").addEventListener("click", () => {
-  document.getElementById("words").value = sampleWords.join("\n");
-});
+function missWord(){cancelAnimationFrame(animationId);missedWords.push(activeWord);lives--;combo=1;attempts++;updateHud();if(activeEl)activeEl.remove();activeEl=null;answerInput.value="";lives<=0?endGame():spawnWord()}
+function updateHud(){scoreEl.textContent=score;comboEl.textContent=combo;livesEl.textContent="❤️".repeat(lives)+"🖤".repeat(3-lives)}
+function startGame(){words=readWords();score=0;lives=3;combo=1;attempts=0;correctCount=0;missedWords=[];playing=true;updateHud();startOverlay.classList.add("hidden");gameOverOverlay.classList.add("hidden");answerInput.disabled=false;answerInput.value="";answerInput.focus();spawnWord()}
+function endGame(){playing=false;cancelAnimationFrame(animationId);answerInput.disabled=true;const accuracy=attempts?Math.round(correctCount/attempts*100):0;finalScoreEl.textContent=score;accuracyEl.textContent=accuracy+"%";masteredEl.textContent=correctCount;const uniqueMissed=[...new Set(missedWords)];reviewListEl.innerHTML=uniqueMissed.length?"<strong>Words to review:</strong><br>"+uniqueMissed.join(" · "):"<strong>Great job!</strong> No missed words.";gameOverOverlay.classList.remove("hidden")}
+document.getElementById("startBtn").addEventListener("click",startGame);
+document.getElementById("restartBtn").addEventListener("click",startGame);
+document.getElementById("submitBtn").addEventListener("click",checkAnswer);
+answerInput.addEventListener("keydown",e=>{if(e.key==="Enter")checkAnswer()});
+document.getElementById("resetWordsBtn").addEventListener("click",()=>{document.getElementById("words").value=sampleWords.join("\n")});
 </script>
 </body>
 </html>
