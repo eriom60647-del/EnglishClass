@@ -245,6 +245,7 @@ festival</textarea>
 
         <div class="controls">
           <button id="pauseBtn" class="warning small">⏸ Pause</button>
+          <button id="musicBtn" class="secondary small">🎵 Music On</button>
           <button id="teacherBtn" class="secondary small">⚙ Teacher Setup</button>
         </div>
       </div>
@@ -304,6 +305,10 @@ const accuracyEl=document.getElementById("accuracy");
 const masteredEl=document.getElementById("mastered");
 const reviewListEl=document.getElementById("reviewList");
 const pauseBtn=document.getElementById("pauseBtn");
+const musicBtn=document.getElementById("musicBtn");
+const bgm=document.getElementById("bgm");
+bgm.volume=0.22;
+let musicEnabled=true;
 
 let words=[];
 let activeWord=null;
@@ -321,6 +326,31 @@ let missedWords=[];
 
 let playing=false;
 let paused=false;
+
+function playMusic(){
+  if(!musicEnabled) return;
+  bgm.play().catch(()=>{});
+}
+
+function pauseMusic(){
+  bgm.pause();
+}
+
+function stopMusic(){
+  bgm.pause();
+  bgm.currentTime=0;
+}
+
+function toggleMusic(){
+  musicEnabled=!musicEnabled;
+  if(musicEnabled){
+    musicBtn.textContent="🎵 Music On";
+    if(playing && !paused) playMusic();
+  }else{
+    musicBtn.textContent="🔇 Music Off";
+    pauseMusic();
+  }
+}
 
 function readWords(){
   const raw=document.getElementById("words").value
@@ -374,6 +404,7 @@ function showTeacherView(){
 
   pauseOverlay.classList.add("hidden");
   gameOverOverlay.classList.add("hidden");
+  stopMusic();
 
   studentView.style.display="none";
   teacherView.style.display="block";
@@ -404,6 +435,7 @@ function startGame(){
 
   setTimeout(()=>{
     answerInput.focus();
+    playMusic();
     spawnWord();
   },50);
 }
@@ -432,6 +464,7 @@ function restartGame(){
   }
 
   answerInput.focus();
+  playMusic();
   spawnWord();
 }
 
@@ -540,6 +573,7 @@ function pauseGame(){
   answerInput.disabled=true;
   pauseOverlay.classList.remove("hidden");
   pauseBtn.textContent="▶ Resume";
+  pauseMusic();
 }
 
 function resumeGame(){
@@ -549,6 +583,7 @@ function resumeGame(){
   answerInput.disabled=false;
   pauseOverlay.classList.add("hidden");
   pauseBtn.textContent="⏸ Pause";
+  playMusic();
 
   lastTime=null;
   answerInput.focus();
@@ -579,6 +614,7 @@ function endGame(){
 
   answerInput.disabled=true;
   pauseOverlay.classList.add("hidden");
+  stopMusic();
 
   const accuracy=attempts ? Math.round(correctCount/attempts*100) : 0;
 
@@ -605,6 +641,7 @@ document.getElementById("restartBtn").addEventListener("click",restartGame);
 document.getElementById("submitBtn").addEventListener("click",checkAnswer);
 
 document.getElementById("pauseBtn").addEventListener("click",togglePause);
+document.getElementById("musicBtn").addEventListener("click",toggleMusic);
 document.getElementById("resumeBtn").addEventListener("click",resumeGame);
 
 document.getElementById("teacherBtn").addEventListener("click",askTeacherSetup);
@@ -628,5 +665,6 @@ document.getElementById("resetWordsBtn").addEventListener("click",()=>{
   document.getElementById("words").value=sampleWords.join("\n");
 });
 </script>
+<audio id="bgm" src="sounds/game-bgm.wav" loop preload="auto"></audio>
 </body>
 </html>
