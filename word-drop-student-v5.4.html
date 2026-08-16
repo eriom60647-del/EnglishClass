@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Word Drop | Loui's English Classroom</title>
+<meta name="description" content="Practice English vocabulary with Word Drop, a falling-word spelling game for students.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://eriom60647-del.github.io/EnglishClass/game.html">
+<style>
+  :root{
+    --ink:#213547; --muted:#667985; --panel:#fff; --accent:#7bb6a7;
+    --accent2:#f2a65a; --danger:#d95d5d; --line:#e6ecec; --soft:#f4f7f6;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    color:var(--ink);background:linear-gradient(180deg,#f9f7f0,#edf4f2);min-height:100vh;
+  }
+  nav{
+    position:sticky;top:0;z-index:50;background:rgba(255,255,255,.94);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
+  }
+  .nav-inner{
+    max-width:1180px;margin:auto;padding:14px 22px;display:flex;
+    align-items:center;justify-content:space-between;gap:16px;
+  }
+  .brand{font-weight:900;font-size:20px}
+  .nav-links{display:flex;gap:10px;flex-wrap:wrap}
+  .nav-links a,.nav-links button{
+    text-decoration:none;color:var(--ink);font-weight:800;padding:9px 13px;
+    border-radius:999px;background:#f3f6f5;border:none;font-size:14px;cursor:pointer;
+  }
+
+  .wrap{max-width:1180px;margin:28px auto;padding:0 20px}
+  .hero{
+    background:white;border-radius:26px;padding:28px 30px;
+    box-shadow:0 18px 55px rgba(45,70,80,.10);margin-bottom:20px;
+  }
+  .hero h1{margin:0 0 7px;font-size:36px}
+  .hero p{margin:0;color:var(--muted);line-height:1.6}
+
+  .panel{
+    background:rgba(255,255,255,.97);border-radius:26px;
+    box-shadow:0 18px 55px rgba(45,70,80,.12);overflow:hidden;
+  }
+
+  /* Student setup */
+  #studentSetup{padding:30px}
+  .setup-title{text-align:center;margin-bottom:24px}
+  .setup-title h2{margin:0 0 8px;font-size:30px}
+  .setup-title p{margin:0;color:var(--muted)}
+  .student-options{
+    max-width:680px;margin:auto;display:grid;grid-template-columns:1fr 1fr;gap:18px;
+  }
+  .option-card{
+    background:#fbfcfc;border:1px solid var(--line);border-radius:20px;padding:20px;
+  }
+  label{display:block;font-weight:900;margin-bottom:9px}
+  select{
+    width:100%;padding:13px;border:2px solid #dce5e7;border-radius:13px;
+    background:white;font-size:16px;outline:none;
+  }
+  select:focus{border-color:var(--accent)}
+  .start-box{max-width:680px;margin:20px auto 0;text-align:center}
+  button{
+    border:none;border-radius:14px;padding:12px 18px;font-weight:850;
+    cursor:pointer;font-size:16px;background:var(--accent);color:white;
+  }
+  button.secondary{background:#e9eeee;color:var(--ink)}
+  button.warning{background:var(--accent2);color:#3a3229}
+  button.small{padding:9px 13px;font-size:14px}
+  #startGameBtn{width:100%;height:56px;font-size:19px}
+
+  /* Game */
+  #gameView{display:none}
+  .game-top{
+    display:flex;align-items:center;justify-content:space-between;gap:14px;
+    padding:16px 20px;border-bottom:1px solid var(--line);background:white;
+  }
+  .hud{display:flex;gap:10px;flex-wrap:wrap}
+  .badge{background:#f5f7f8;padding:9px 14px;border-radius:999px;font-weight:800}
+  .controls{display:flex;gap:8px;flex-wrap:wrap}
+  #gameArea{
+    position:relative;height:650px;overflow:hidden;
+    background:
+      radial-gradient(circle at 20% 20%,rgba(123,182,167,.13),transparent 30%),
+      radial-gradient(circle at 80% 15%,rgba(242,166,90,.13),transparent 28%),
+      #fbfcfc;
+  }
+  .danger-line{
+    position:absolute;left:0;right:0;bottom:92px;
+    border-top:3px dashed rgba(217,93,93,.58);pointer-events:none;
+  }
+  .danger-line span{
+    position:absolute;right:16px;top:8px;color:var(--danger);
+    font-weight:850;font-size:12px;
+  }
+  .falling{
+    position:absolute;min-width:170px;text-align:center;background:white;
+    border:2px solid #dfe7e7;padding:14px 20px;border-radius:17px;
+    font-size:31px;font-weight:900;letter-spacing:4px;
+    box-shadow:0 9px 22px rgba(40,60,70,.12);
+    transition:transform .12s ease,opacity .18s ease;
+  }
+  .falling.correct{transform:scale(1.18);opacity:0}
+  .input-wrap{
+    position:absolute;left:20px;right:20px;bottom:18px;height:58px;display:flex;gap:10px;
+  }
+  #answer{
+    flex:1;border:2px solid #d7e0e3;border-radius:15px;font-size:23px;
+    padding:0 17px;outline:none;background:white;
+  }
+  #answer:focus{border-color:var(--accent)}
+  #answer:disabled{background:#f1f3f3;color:#90999c}
+
+  .overlay{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    background:rgba(249,251,251,.89);z-index:20;
+  }
+  .overlay.hidden{display:none}
+  .modal{
+    width:min(460px,88%);background:white;border-radius:24px;padding:30px;
+    box-shadow:0 20px 55px rgba(36,60,67,.18);text-align:center;
+  }
+  .modal h2{margin:0 0 10px;font-size:34px}
+  .modal p{color:var(--muted);line-height:1.6}
+  .stats{
+    text-align:left;background:#f7f9f8;padding:15px 17px;border-radius:15px;
+    line-height:1.9;margin:17px 0;
+  }
+  .review-list{text-align:left;max-height:125px;overflow:auto;font-weight:750}
+  .pause-icon{font-size:54px;margin-bottom:8px}
+
+  /* Teacher login/editor */
+  #teacherLogin,#teacherEditor{display:none;padding:30px}
+  .teacher-card{
+    max-width:650px;margin:auto;background:#fbfcfc;border:1px solid var(--line);
+    border-radius:22px;padding:24px;
+  }
+  .teacher-card h2{margin:0 0 8px}
+  .teacher-card p{color:var(--muted);line-height:1.55}
+  .pin-input{
+    width:100%;padding:14px;border:2px solid #dce5e7;border-radius:14px;
+    font-size:20px;letter-spacing:.2em;text-align:center;outline:none;
+  }
+  .pin-input:focus{border-color:var(--accent)}
+  textarea{
+    width:100%;min-height:320px;resize:vertical;border:2px solid #dce5e7;
+    border-radius:16px;padding:14px;font-size:17px;line-height:1.6;outline:none;
+  }
+  textarea:focus{border-color:var(--accent)}
+  .teacher-actions{display:flex;gap:10px;margin-top:15px;flex-wrap:wrap}
+  .teacher-actions button{flex:1}
+  .status{
+    display:none;margin-top:12px;padding:10px 12px;border-radius:12px;
+    background:#edf5f2;color:#4f786e;font-weight:800;font-size:14px;
+  }
+  .error{
+    display:none;margin-top:12px;padding:10px 12px;border-radius:12px;
+    background:#fff0ee;color:#a04e45;font-weight:800;font-size:14px;
+  }
+  .privacy-note{
+    margin-top:14px;font-size:12px;color:#87949a;line-height:1.5;
+  }
+
+  @media(max-width:800px){
+    .student-options{grid-template-columns:1fr}
+    #gameArea{height:560px}
+    .game-top{align-items:flex-start;flex-direction:column}
+    .nav-inner{align-items:flex-start;flex-direction:column}
+  }
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div class="brand">Loui's English Classroom</div>
+    <div class="nav-links">
+      <a href="index.html">🏠 Home</a>
+      <a href="resources.html">📚 Resources</a>
+      <button id="teacherNavBtn">🔐 Teacher</button>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+  <section class="hero">
+    <h1>Word Drop</h1>
+    <p>Choose your level and speed, then start the game. Type each falling word before it reaches the bottom.</p>
+  </section>
+
+  <section class="panel">
+    <!-- STUDENT START SCREEN -->
+    <div id="studentSetup">
+      <div class="setup-title">
+        <h2>Ready to Play?</h2>
+        <p>Choose your game settings before you begin.</p>
+      </div>
+
+      <div class="student-options">
+        <div class="option-card">
+          <label for="difficulty">Difficulty</label>
+          <select id="difficulty">
+            <option value="easy">Easy — show most letters</option>
+            <option value="medium" selected>Medium — show some letters</option>
+            <option value="hard">Hard — show first letter only</option>
+          </select>
+        </div>
+
+        <div class="option-card">
+          <label for="speed">Falling Speed</label>
+          <select id="speed">
+            <option value="slow">Slow</option>
+            <option value="normal" selected>Normal</option>
+            <option value="fast">Fast</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="start-box">
+        <button id="startGameBtn">▶ Start Game</button>
+      </div>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div id="gameView">
+      <div class="game-top">
+        <div class="hud">
+          <div class="badge">Score: <span id="score">0</span></div>
+          <div class="badge">Combo: ×<span id="combo">1</span></div>
+          <div class="badge">Lives: <span id="lives">❤️❤️❤️</span></div>
+        </div>
+
+        <div class="controls">
+          <button id="pauseBtn" class="warning small">⏸ Pause</button>
+          <button id="musicBtn" class="secondary small">🎵 Music On</button>
+          <button id="quitBtn" class="secondary small">↩ Game Menu</button>
+        </div>
+      </div>
+
+      <div id="gameArea">
+        <div class="danger-line"><span>Don't let the word fall!</span></div>
+
+        <div class="input-wrap">
+          <input id="answer" type="text" autocomplete="off" placeholder="Type the word here..." />
+          <button id="submitBtn">Check</button>
+        </div>
+
+        <div id="pauseOverlay" class="overlay hidden">
+          <div class="modal">
+            <div class="pause-icon">⏸</div>
+            <h2>Paused</h2>
+            <p>The word is frozen. Press Resume when you're ready.</p>
+            <button id="resumeBtn" style="width:100%">▶ Resume Game</button>
+          </div>
+        </div>
+
+        <div id="gameOverOverlay" class="overlay hidden">
+          <div class="modal">
+            <h2>Game Over</h2>
+            <div class="stats">
+              Score: <strong id="finalScore">0</strong><br>
+              Accuracy: <strong id="accuracy">0%</strong><br>
+              Mastered: <strong id="mastered">0</strong>
+            </div>
+            <div class="review-list" id="reviewList"></div>
+            <button id="restartBtn" style="width:100%;margin-top:16px">Practice Again</button>
+            <button id="menuBtn" class="secondary" style="width:100%;margin-top:10px">↩ Back to Game Menu</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEACHER LOGIN -->
+    <div id="teacherLogin">
+      <div class="teacher-card">
+        <h2>🔐 Teacher Login</h2>
+        <p>Enter the teacher PIN to update the Word Drop vocabulary.</p>
+        <input id="pinInput" class="pin-input" type="password" inputmode="numeric" maxlength="8" placeholder="PIN">
+        <div id="pinError" class="error">Incorrect PIN. Please try again.</div>
+        <div class="teacher-actions">
+          <button id="loginBtn">Login</button>
+          <button id="cancelLoginBtn" class="secondary">Cancel</button>
+        </div>
+        <div class="privacy-note">This PIN is a simple classroom gate on a static webpage. It is not intended for sensitive or private information.</div>
+      </div>
+    </div>
+
+    <!-- TEACHER EDITOR -->
+    <div id="teacherEditor">
+      <div class="teacher-card">
+        <h2>Vocabulary Editor</h2>
+        <p>One word per line. Save the list when you're finished.</p>
+
+        <label for="words">Vocabulary</label>
+        <textarea id="words">monster
+afraid
+village
+noise
+lantern
+dragon
+firecracker
+celebrate
+tradition
+festival</textarea>
+
+        <div id="saveStatus" class="status">✓ Vocabulary saved on this device.</div>
+
+        <div class="teacher-actions">
+          <button id="saveWordsBtn">💾 Save Vocabulary</button>
+          <button id="resetWordsBtn" class="secondary">Reset Sample Words</button>
+          <button id="exitTeacherBtn" class="secondary">← Student Page</button>
+        </div>
+
+        <div class="privacy-note">
+          Vocabulary changes are stored in this browser using local storage. On a static GitHub Pages site, this does not automatically update other students' devices.
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<audio id="bgm" src="sounds/game-bgm.wav" loop preload="auto"></audio>
+
+<script>
+const TEACHER_PIN="1234";
+const sampleWords=["monster","afraid","village","noise","lantern","dragon","firecracker","celebrate","tradition","festival"];
+
+const studentSetup=document.getElementById("studentSetup");
+const gameView=document.getElementById("gameView");
+const teacherLogin=document.getElementById("teacherLogin");
+const teacherEditor=document.getElementById("teacherEditor");
+
+const gameArea=document.getElementById("gameArea");
+const answerInput=document.getElementById("answer");
+const scoreEl=document.getElementById("score");
+const comboEl=document.getElementById("combo");
+const livesEl=document.getElementById("lives");
+const pauseOverlay=document.getElementById("pauseOverlay");
+const gameOverOverlay=document.getElementById("gameOverOverlay");
+const finalScoreEl=document.getElementById("finalScore");
+const accuracyEl=document.getElementById("accuracy");
+const masteredEl=document.getElementById("mastered");
+const reviewListEl=document.getElementById("reviewList");
+const pauseBtn=document.getElementById("pauseBtn");
+const musicBtn=document.getElementById("musicBtn");
+const bgm=document.getElementById("bgm");
+
+bgm.volume=0.22;
+
+let words=[];
+let activeWord=null;
+let activeEl=null;
+let y=0;
+let animationId=null;
+let lastTime=null;
+let score=0;
+let lives=3;
+let combo=1;
+let attempts=0;
+let correctCount=0;
+let missedWords=[];
+let playing=false;
+let paused=false;
+let musicEnabled=true;
+
+function hideAllViews(){
+  studentSetup.style.display="none";
+  gameView.style.display="none";
+  teacherLogin.style.display="none";
+  teacherEditor.style.display="none";
+}
+
+function showStudentMenu(){
+  playing=false;
+  paused=false;
+  cancelAnimationFrame(animationId);
+  stopMusic();
+  if(activeEl){activeEl.remove();activeEl=null;}
+  pauseOverlay.classList.add("hidden");
+  gameOverOverlay.classList.add("hidden");
+  hideAllViews();
+  studentSetup.style.display="block";
+}
+
+function openTeacherLogin(){
+  if(playing){
+    const ok=confirm("End the current game and open Teacher Login?");
+    if(!ok) return;
+  }
+  playing=false;
+  paused=false;
+  cancelAnimationFrame(animationId);
+  stopMusic();
+  if(activeEl){activeEl.remove();activeEl=null;}
+  hideAllViews();
+  teacherLogin.style.display="block";
+  document.getElementById("pinInput").value="";
+  document.getElementById("pinError").style.display="none";
+  setTimeout(()=>document.getElementById("pinInput").focus(),50);
+}
+
+function loadSavedVocabulary(){
+  const saved=localStorage.getItem("wordDropVocabulary");
+  document.getElementById("words").value=saved || sampleWords.join("\n");
+}
+
+function readWords(){
+  const raw=document.getElementById("words").value
+    .split("\n").map(w=>w.trim().toLowerCase()).filter(Boolean);
+  return raw.length ? raw : [...sampleWords];
+}
+
+function saveVocabulary(){
+  const raw=document.getElementById("words").value
+    .split("\n").map(w=>w.trim()).filter(Boolean);
+  document.getElementById("words").value=raw.join("\n");
+  localStorage.setItem("wordDropVocabulary",raw.join("\n"));
+  const status=document.getElementById("saveStatus");
+  status.style.display="block";
+  setTimeout(()=>status.style.display="none",2200);
+}
+
+function loginTeacher(){
+  const pin=document.getElementById("pinInput").value;
+  if(pin===TEACHER_PIN){
+    document.getElementById("pinError").style.display="none";
+    loadSavedVocabulary();
+    hideAllViews();
+    teacherEditor.style.display="block";
+  }else{
+    document.getElementById("pinError").style.display="block";
+    document.getElementById("pinInput").select();
+  }
+}
+
+function maskWord(word){
+  const difficulty=document.getElementById("difficulty").value;
+  const letters=word.split("");
+  if(word.length<=2) return word[0]+"_";
+  if(difficulty==="easy") return letters.map((c,i)=>i%3===1?"_":c).join(" ");
+  if(difficulty==="hard") return letters.map((c,i)=>i===0?c:"_").join(" ");
+  return letters.map((c,i)=>{
+    if(i===0 || i===letters.length-1) return c;
+    return i%2===0 ? c : "_";
+  }).join(" ");
+}
+
+function getSpeed(){
+  const speed=document.getElementById("speed").value;
+  if(speed==="slow") return 28;
+  if(speed==="fast") return 62;
+  return 44;
+}
+
+function playMusic(){
+  if(!musicEnabled) return;
+  bgm.play().catch(()=>{});
+}
+function pauseMusic(){bgm.pause();}
+function stopMusic(){bgm.pause();bgm.currentTime=0;}
+function toggleMusic(){
+  musicEnabled=!musicEnabled;
+  if(musicEnabled){
+    musicBtn.textContent="🎵 Music On";
+    if(playing && !paused) playMusic();
+  }else{
+    musicBtn.textContent="🔇 Music Off";
+    pauseMusic();
+  }
+}
+
+function startGame(){
+  loadSavedVocabulary();
+  words=readWords();
+
+  score=0;lives=3;combo=1;attempts=0;correctCount=0;missedWords=[];
+  playing=true;paused=false;
+  updateHud();
+
+  hideAllViews();
+  gameView.style.display="block";
+  gameOverOverlay.classList.add("hidden");
+  pauseOverlay.classList.add("hidden");
+  answerInput.disabled=false;
+  answerInput.value="";
+  pauseBtn.textContent="⏸ Pause";
+
+  setTimeout(()=>{
+    answerInput.focus();
+    playMusic();
+    spawnWord();
+  },50);
+}
+
+function restartGame(){
+  score=0;lives=3;combo=1;attempts=0;correctCount=0;missedWords=[];
+  playing=true;paused=false;
+  updateHud();
+  gameOverOverlay.classList.add("hidden");
+  pauseOverlay.classList.add("hidden");
+  answerInput.disabled=false;
+  answerInput.value="";
+  pauseBtn.textContent="⏸ Pause";
+  if(activeEl){activeEl.remove();activeEl=null;}
+  answerInput.focus();
+  playMusic();
+  spawnWord();
+}
+
+function spawnWord(){
+  if(!playing || paused) return;
+  if(activeEl) activeEl.remove();
+
+  activeWord=words[Math.floor(Math.random()*words.length)];
+  activeEl=document.createElement("div");
+  activeEl.className="falling";
+  activeEl.textContent=maskWord(activeWord);
+  gameArea.appendChild(activeEl);
+
+  const maxX=Math.max(20,gameArea.clientWidth-230);
+  activeEl.style.left=(20+Math.random()*maxX)+"px";
+  y=14;activeEl.style.top=y+"px";lastTime=null;
+  animationId=requestAnimationFrame(tick);
+}
+
+function tick(timestamp){
+  if(!playing || paused || !activeEl) return;
+  if(!lastTime) lastTime=timestamp;
+  const dt=(timestamp-lastTime)/1000;
+  lastTime=timestamp;
+  y += getSpeed()*dt;
+  activeEl.style.top=y+"px";
+
+  const dangerY=gameArea.clientHeight-170;
+  if(y>=dangerY){missWord();return;}
+  animationId=requestAnimationFrame(tick);
+}
+
+function checkAnswer(){
+  if(!playing || paused || !activeWord) return;
+  const guess=answerInput.value.trim().toLowerCase();
+  if(!guess) return;
+
+  attempts++;
+  if(guess===activeWord){
+    correctCount++;
+    score += 100*combo;
+    combo=Math.min(combo+1,9);
+    activeEl.classList.add("correct");
+    updateHud();
+    answerInput.value="";
+    cancelAnimationFrame(animationId);
+
+    setTimeout(()=>{
+      if(activeEl) activeEl.remove();
+      activeEl=null;
+      spawnWord();
+    },160);
+  }else{
+    combo=1;
+    updateHud();
+    answerInput.select();
+  }
+}
+
+function missWord(){
+  cancelAnimationFrame(animationId);
+  missedWords.push(activeWord);
+  lives--;
+  combo=1;
+  attempts++;
+  updateHud();
+
+  if(activeEl) activeEl.remove();
+  activeEl=null;
+  answerInput.value="";
+
+  if(lives<=0) endGame();
+  else spawnWord();
+}
+
+function pauseGame(){
+  if(!playing || paused) return;
+  paused=true;
+  cancelAnimationFrame(animationId);
+  answerInput.disabled=true;
+  pauseOverlay.classList.remove("hidden");
+  pauseBtn.textContent="▶ Resume";
+  pauseMusic();
+}
+
+function resumeGame(){
+  if(!playing || !paused) return;
+  paused=false;
+  answerInput.disabled=false;
+  pauseOverlay.classList.add("hidden");
+  pauseBtn.textContent="⏸ Pause";
+  playMusic();
+  lastTime=null;
+  answerInput.focus();
+  if(activeEl) animationId=requestAnimationFrame(tick);
+  else spawnWord();
+}
+
+function togglePause(){
+  if(!playing) return;
+  paused ? resumeGame() : pauseGame();
+}
+
+function updateHud(){
+  scoreEl.textContent=score;
+  comboEl.textContent=combo;
+  livesEl.textContent="❤️".repeat(lives)+"🖤".repeat(3-lives);
+}
+
+function endGame(){
+  playing=false;
+  paused=false;
+  cancelAnimationFrame(animationId);
+  answerInput.disabled=true;
+  pauseOverlay.classList.add("hidden");
+  stopMusic();
+
+  const accuracy=attempts ? Math.round(correctCount/attempts*100) : 0;
+  finalScoreEl.textContent=score;
+  accuracyEl.textContent=accuracy+"%";
+  masteredEl.textContent=correctCount;
+
+  const uniqueMissed=[...new Set(missedWords)];
+  reviewListEl.innerHTML=uniqueMissed.length
+    ? "<strong>Words to review:</strong><br>"+uniqueMissed.join(" · ")
+    : "<strong>Great job!</strong> No missed words.";
+
+  gameOverOverlay.classList.remove("hidden");
+}
+
+document.getElementById("startGameBtn").addEventListener("click",startGame);
+document.getElementById("restartBtn").addEventListener("click",restartGame);
+document.getElementById("menuBtn").addEventListener("click",showStudentMenu);
+document.getElementById("quitBtn").addEventListener("click",()=>{
+  const ok=confirm("Return to the game menu? The current game will end.");
+  if(ok) showStudentMenu();
+});
+
+document.getElementById("submitBtn").addEventListener("click",checkAnswer);
+answerInput.addEventListener("keydown",e=>{if(e.key==="Enter")checkAnswer();});
+
+document.getElementById("pauseBtn").addEventListener("click",togglePause);
+document.getElementById("resumeBtn").addEventListener("click",resumeGame);
+document.getElementById("musicBtn").addEventListener("click",toggleMusic);
+
+document.getElementById("teacherNavBtn").addEventListener("click",openTeacherLogin);
+document.getElementById("loginBtn").addEventListener("click",loginTeacher);
+document.getElementById("pinInput").addEventListener("keydown",e=>{if(e.key==="Enter")loginTeacher();});
+document.getElementById("cancelLoginBtn").addEventListener("click",showStudentMenu);
+document.getElementById("exitTeacherBtn").addEventListener("click",showStudentMenu);
+document.getElementById("saveWordsBtn").addEventListener("click",saveVocabulary);
+document.getElementById("resetWordsBtn").addEventListener("click",()=>{
+  document.getElementById("words").value=sampleWords.join("\n");
+});
+
+document.addEventListener("keydown",e=>{
+  if(e.code==="Space" && playing){
+    const tag=document.activeElement.tagName.toLowerCase();
+    if(tag!=="input" && tag!=="textarea"){
+      e.preventDefault();
+      togglePause();
+    }
+  }
+});
+
+loadSavedVocabulary();
+</script>
+</body>
+</html>
